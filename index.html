@@ -1,47 +1,24 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
+<head>
+    <meta charset="utf-8">
     <title>Presentation</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/black.min.css"
-      id="theme"
-    />
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
     <style>
-      /* Ensure images fit within slides */
-      .reveal .slides img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-        display: block;
-        margin: 0 auto;
-      }
-
-      /* Enable scrolling for overflowing content */
-      .reveal .slides section {
-        overflow-y: auto;
-      }
+        /* General styling for the presentation */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
     </style>
-  </head>
-
-  <body>
-    <div class="reveal">
-      <div class="slides">
-        <section data-markdown>
-          <textarea data-template>
+</head>
+<body>
+    <textarea id="source" style="display: none;">
 # Exploring Save File Exploits and Modifications in Pokémon Gold
 ### Understanding ACE, RCE, and Memory Structures
 
-<div style="text-align: center;">
-    <img src="images/home.jpg" style="max-width: 80%; height: auto;" alt="Home Image">
-</div>
+![photo-here](images/home.jpg)
 
----
+
+
 
 # What Are We Doing?
 
@@ -56,21 +33,26 @@
 - Ensuring save file integrity with checksums.
 - Automating repetitive modifications.
 
-<div style="text-align: center;">
-    <img src="images/pokemon-rce.jpg" style="max-width: 80%; height: auto;" alt="RCE Example">
-</div>
+![Save File Placeholder](images/pokemon-rce.jpg)
 
----
 
 # Arbitrary Code Execution (ACE)
 
 - **Definition:** Running custom code by exploiting memory or save file vulnerabilities.
+- **How It Works:**
+  - ACE exploits unused or mismanaged areas of memory.
+  - Redirects the game’s logic to execute unintended code paths.
+- **Example in Pokémon Gold:**
+  - Modifying specific save file offsets to change in-game data.
+  - Hijacking existing game logic.
+- **Applications:**
+  - Speedrunning (e.g., skipping sections of the game).
+  - Debugging and testing game mechanics.
 
-<div style="text-align: center;">
-    <img src="images/ace-img.jpg" style="max-width: 80%; height: auto;" alt="ACE Example">
-</div>
+  ##### Memory safety issues are a common cause of arbitrary code execution. Vulnerabilities like buffer overflows, use-after-free, and double-free errors allow attackers to manipulate the application’s memory. These flaws can lead to the execution of malicious code by corrupting memory structures or altering the control flow of programs.
 
----
+![ACE Example Placeholder](images/ace-img.jpg)
+
 
 # Tools for Performing Arbitrary Code Execution
 
@@ -100,21 +82,23 @@
 - **Usage:**  
   - Reverse engineer and develop custom code execution strategies.
 
-<div style="text-align: center;">
-    <img src="images/disassembler-1.png" style="max-width: 80%; height: auto;" alt="Disassembler Tools">
-</div>
+![Tools for ACE Placeholder](images/disassembler-1.png)
 
----
 
 # Remote Code Execution (RCE)
 
 - **Definition:** Executing code on a system using external tools or data sources.
+- **How It Differs From ACE:**
+  - ACE occurs locally within the game or system.
+  - RCE involves external inputs like save editors or emulators.
+- **Example Scenario:**
+  - Using a tool (e.g., PKHeX) to inject new data into a save file.
+  - Automating repetitive tasks with scripts.
+- **Applications:**
+  - Bulk modifications (e.g., editing multiple saves).
+  - Custom patches for game enhancements.
 
-<div style="text-align: center;">
-    <img src="images/title-img.jpg" style="max-width: 80%; height: auto;" alt="RCE Example">
-</div>
-
----
+![photo-here](images/title-img.jpg)
 
 # Tools for Performing Remote Code Execution
 
@@ -125,10 +109,8 @@
 - **Usage:**  
   - Directly inject or modify data in save files or memory blocks.
 
-<div style="text-align: center;">
-    <img src="images/pkhex.png" style="max-width: 80%; height: auto;" alt="PKHeX">
-</div>
-
+![photo-here](images/pkhex.png)
+![photo-here](images/gameshark.jpg)
 ---
 
 ### **2. Emulators**
@@ -139,52 +121,134 @@
   - Load modified save files to validate changes.
   - Test custom patches in a controlled environment.
 
-<div style="text-align: center;">
-    <img src="images/retroarch.png" style="max-width: 80%; height: auto;" alt="Emulators">
-</div>
-
+![photo-here](images/retroarch.png)
+![photo-here](images/vba.jpg)
 ---
 
 ### **3. Scripting Tools**
 - **Examples:**  
   - Python (e.g., save file automation).
   - Bash/PowerShell for bulk file edits.
-  - IDA to decompile and edit.
+  - IDA to decompile and edit
 - **Usage:**  
   - Automate remote modifications across multiple files.
   - Validate and deploy patches efficiently.
 
-<div style="text-align: center;">
-    <img src="images/ida.jpg" style="max-width: 80%; height: auto;" alt="IDA Example">
-</div>
-
----
+![Tools for RCE Placeholder](images/ida.jpg)
 
 # How Memory Works in Save Files
 
 - **Memory as a Data Grid:**
   - Save files are structured like a grid of memory addresses.
   - Each address (or offset) stores specific pieces of data. 
+  
+  an Offset is simply indicating the distance (displacement) between the beginning of the object and a given element or point. 
 
-<div style="text-align: center;">
-    <img src="images/memory-2.gif" style="max-width: 80%; height: auto;" alt="Memory Grid">
-</div>
+  Eg) in the string `abcdef` you would say the character `d` has an offset of 3 from the beginning of the object `a`
 
----
+- **Key Components:**
+  - **Static Memory:** Fixed data (e.g., player name, initial settings).
+  - **Dynamic Memory:** Changing data (e.g., money, items, game state).
+- **Example in Pokémon Gold:**
+  - Money values stored in offsets:
+    - `3182–3184` (primary).
+    - `9180–9182` (backup).
 
+![Memory Structure Placeholder](images/memory-2.gif)
+
+![Memory Structure Placeholder](images/offsets.png)
 # Endianness and Data Decoding
 
 ### **Endianness**
 - **Definition:** Refers to the order in which bytes are stored in memory.
+- **Little Endian:**
+  - Least significant byte (LSB - right most number) stored first.
+  - Used in Pokémon Gold's save file.
+  - Example: The value `3000` is stored as `B8 0B` in memory. 
+- **Big Endian:**
+  - Most significant byte (MSB - left most number) stored first.
+  - Example: The value `3000` is stored as `0B B8` in memory.
+
+   *3000 in hex = `0xBB8`*
+
+![Endianness Diagram Placeholder](images/endian.jpg)
 
 ---
+
+### **Example of LSB vs MSB**
+- Decimal Value: `4660`  
+  - **Binary Representation:** 
+    `0001 0010 0011 0100`  
+  - **Little Endian (LSB First):** 
+    `34 12`  
+    
+    - Stored as `0011 0100` (`34`) 
+      
+      then `0001 0010` (`12`)
+  
+  - **Big Endian (MSB First):** `12 34`  
+    - Stored as `0001 0010` (`12`)
+    
+      then `0011 0100` (`34`)
+
+---
+
+### **Hex/Binary Decoding**
+- How Values are Found (manual way):
+  - Scanned save files for offsets storing specific data (e.g., money values).
+  - Interpreted hexadecimal values and converted them to decimal.
+- Example:
+  - **Hexadecimal:** `0B B8` → **Binary:** `00001011 10111000` → **Decimal:** `3000`.
+
+
+Sometimes you will have to do the above & manually scan for addresses while using your emulator + debugger in order to find where things are saved but now there are tons of lookups and forms that provide RAM mappings of addresses to items such as the following:
+
+- https://www.pokecommunity.com/threads/the-offset-reference-please-contribute.369324/
+- https://datacrystal.tcrf.net/wiki/Pok%C3%A9mon_Gold_and_Silver/RAM_map
+
+
 
 # Checksums and Validation
 
 ### **What is a Checksum?**
 - **Definition:** A numerical value calculated from a block of data to ensure integrity.
+- **Purpose:**  
+  - Detects accidental changes to data.  
+  - Used in save files to validate that data hasn’t been corrupted.
 
 ---
+
+![Checksum Diagram Placeholder](images/checksum.svg)
+
+![Checksum Diagram Placeholder](images/checksum-process.webp)
+
+---
+
+### **Real-World Example of a Checksum**
+- **Scenario:** Sending a file over the internet.
+- **Steps:**
+  1. Sender calculates a checksum (e.g., sum of all bytes) before sending.
+  2. Receiver recalculates the checksum on arrival.
+  3. If the checksums match, the data is valid; otherwise, it’s corrupted.
+
+---
+
+### **In Pokémon Gold**
+- **Checksum Calculation:**
+  - Primary Save Block: `0x2000–0x2D68`.
+  - Backup Save Block: `0x4000–0x4D68`.  
+- **Modified Offsets:**
+  - Primary Checksum: `0x2D69`.
+  - Backup Checksum: `0x4D69`.
+- **Importance:**
+  - Without a valid checksum, the game flags the save file as corrupted.
+
+**These checksums for Pokemon Gold were found using the following tool**:
+
+https://github.com/Chase-san/libspec
+
+http://chase-san.github.io/libspec/index.html
+
 
 # Key Takeaways
 
@@ -200,24 +264,11 @@
 
 - **Relevance Beyond Gaming:**  
   - These concepts apply to web development, data validation, security, & database optimization/design practices.
-                </textarea
-          >
-        </section>
-      </div>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/markdown/markdown.min.js"></script>
+
+    </textarea>
     <script>
-      Reveal.initialize({
-        width: 960,
-        height: 700,
-        margin: 0.1,
-        plugins: [RevealMarkdown],
-        markdown: {
-          smartypants: true,
-        },
-      });
+        var slideshow = remark.create();
     </script>
-  </body>
+</body>
 </html>
