@@ -3,20 +3,15 @@
 <head>
     <meta charset="utf-8">
     <title>Markdown Presentation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/markdown/markdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
 </head>
 <body>
-    <div class="reveal">
-        <div class="slides">
-            <section data-markdown="pres.md" data-separator="^\n---\n" data-separator-vertical="^\n--\n"></section>
-        </div>
-    </div>
+    <div id="app"></div>
     <script>
-        Reveal.initialize({
-            plugins: [ RevealMarkdown ]
-        });
+        window.$docsify = {
+            name: 'My Presentation',
+            loadSidebar: true
+        }
     </script>
 </body>
 </html>
