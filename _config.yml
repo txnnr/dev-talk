@@ -1,4 +1,6 @@
-title: My Jekyll Site
-description: Dev Talk 2
+title: Pokemon ACE/RCE
+description: Tanner - Dev Talk Jan 14/2025
 theme: minima
+minima:
+  skin: dark
 markdown: kramdown
