@@ -1,4 +1,3 @@
-# Real-Time Collaborative Streaming Apps
 ## Building Feedback Systems with OT & CRDTs
 
 
@@ -122,29 +121,80 @@ Popular libraries:
 
 You can pair OT/CRDT models with different networking layers:
 
+---
+
 ### 🔌 WebSockets (Client <-> Server)
 
-- Central server manages state
-- Great for OT, but also works for CRDT
-- Easier for NAT/firewall traversal
+> A persistent **TCP connection** between browser & server.
 
-✅ Easier to scale  
-❌ Server becomes a sync bottleneck
+- Server forwards messages between clients
+- Perfect for **centralized OT systems** (ShareDB, Fluid)
+- Also works for CRDT when you want to avoid P2P networking
+
+✅ Easier NAT traversal  
+✅ Simple to scale horizontally  
+❌ Server becomes a sync bottleneck / single point
+
+---
+
+**WebSocket stack looks like:**
+
+```
+
+Browser <── WebSocket ──> Server <──> Other Browsers
+
+```
 
 ---
 
 ### 📡 WebRTC (Peer <-> Peer)
 
-- Clients connect directly (via signaling)
-- Ideal for **offline-first CRDTs**
-- Used by **Y.js**, **Automerge**, **Liveblocks**
+> Browser-to-browser connection designed for realtime video/data.
 
-✅ True peer-to-peer  
-✅ Offline editing + sync when reconnected  
-❌ Harder to NAT punch / reconnect logic  
-❌ Needs a signaling server (e.g. via WebSocket)
+Used by CRDT libraries like **Automerge Repo**, **Yjs**, **Liveblocks**, etc.
+
+**Requires three pieces:**
+
+| Acronym | Stands For       | Purpose                     |
+|--------|------------------|-----------------------------|
+| STUN   | Session Traversal Utilities for NAT | Discovers your public IP/port (NAT traversal) |
+| TURN   | Traversal Using Relays around NAT  | Relays traffic *if* direct P2P fails |
+| ICE    | Interactive Connectivity Establishment | Chooses the best route between peers using candidates from STUN/TURN |
 
 ---
+
+**WebRTC stack looks like:**
+
+```
+
+Browser 1 <--(signaling WS)--> Server <--(signaling WS)--> Browser 2
+│
+ICE: tries P2P via STUN/TURN
+│
+└──> Direct peer connection established
+
+```
+
+✅ True peer-to-peer  
+✅ Works offline → sync later  
+❌ Requires a signaling channel (usually a WebSocket)  
+❌ Relies on STUN/TURN infrastructure for NAT punching  
+❌ Slightly more complex flow
+
+---
+
+### 🛠 Practical library examples
+
+| Sync Model | Transport | Library           |
+|------------|-----------|-------------------|
+| OT         | WebSocket | ShareDB           |
+| CRDT       | WebSocket | Automerge Repo    |
+| CRDT       | WebRTC    | Yjs, Liveblocks   |
+```
+
+---
+
+
 
 ### 🛠 Practical Stack Examples
 
