@@ -1,6 +1,5 @@
 ---
 layout: default
-title: Building Real Time Streaming Apps
 description: Tanner - Dev Talk Aug 19/2025
 ---
 
