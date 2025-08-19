@@ -1,0 +1,19 @@
+/* Core brand colors */
+$background-color: #1b0031;         // deep purple
+$text-color: #ff9aff;              // neon pink
+$heading-color: #a45fff;           // soft purple
+
+/* Midnight theme overrides */
+$header-bg-color: $background-color;
+$section-headings-color: $heading-color;
+$body-link-color: $text-color;
+$body-text-color: $text-color;
+$code-color: #ff3dcb;
+
+/* Inherit the rest of the Midnight theme */
+@import "{{ site.theme }}";
+
+/* Optional: tighten text width so it presents like a slide */
+main {
+  max-width: 900px;
+}
