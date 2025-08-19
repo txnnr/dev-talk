@@ -1,3 +1,9 @@
+---
+layout: default
+title: Building Real Time Streaming Apps
+description: Tanner - Dev Talk Aug 19/2025
+---
+
 ## Building Feedback Systems with OT and CRDTs
 
 ## What are Real-Time Streaming Apps?
