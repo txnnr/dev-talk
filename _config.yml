@@ -3,3 +3,14 @@ description: Tanner - Dev Talk Aug 19/2025
 theme: minima
 minima:
   skin: dark
+# Add this line to include your custom CSS
+remote_theme: minima
+
+# Optional: Add syntax highlighting
+highlighter: rouge
+kramdown:
+  syntax_highlighter: rouge
+
+# Add this to load your custom SCSS
+sass:
+  sass_dir: assets/css
