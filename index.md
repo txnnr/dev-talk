@@ -22,21 +22,35 @@
 
 ## Operational Transform (OT)
 
-- Clients send **operations**: e.g. "insert at position 5"
-- Server performs **transform functions** to reorder/rescale
-- Goal: *All clients apply the same ops in the same state*
+- Clients send **operations** (e.g. "insert at position 5")
+- When operations arrive **out of order**, the server applies a *transform function*  
+  → to adjust an incoming op so it still makes sense after previous edits
+- Goal: *All clients apply operations in the **same resulting order** so they converge*
+
+**Example**:
+
+Initial string: `"hello"`
 
 ```
 
-Initial: "hello"
+User A → Insert(1, "X")
+User B → Insert(3, "Y")
 
-User A → Insert(1,"X")
-User B → Insert(3,"Y")
+```
 
-Server:
-apply B → "helYlo"
-transform A relative → "hXelYlo"
+Operations arrive at the server in the order: **B**, then **A**
 
+```
+
+apply opB → "helYlo"
+transform opA to account for opB
+(since B inserted a char at position 3, A’s original "insert at 1" still valid)
+
+apply transformed-A → "hXelYlo"
+
+```
+
+> 🔧 *The "transform" step is a tiny function that modifies position values so the intent of each operation is preserved even when edits happen concurrently.*
 ```
 
 ---
@@ -57,28 +71,44 @@ transform A relative → "hXelYlo"
 
 ## What are CRDTs?
 
-> **Data structures that always converge** — regardless of the order ops arrive.
+> **Conflict-Free Replicated Data Types** — data structures that
+> **automatically merge** concurrent edits *without needing transforms or a central server*.
 
-- Each edit carries enough metadata (timestamps / causal info)
-- Merge is **mathematical** → *no transforms needed*
-- Perfect for **offline-first + P2P** syncing
+- Each operation carries just enough metadata (unique IDs, causal links)
+- Replicas exchange operations in **any order**
+- Merge logic guarantees that all replicas **eventually converge**
 
 ---
 
-### CRDT Merge Example
+**Example (Sequence CRDT):**
+
+Initial:
 
 ```
 
-"a"(A1) "b"(A2) "c"(A3)
+"h"(A1), "e"(A2), "l"(A3), "l"(A4), "o"(A5)
 
-User A inserts X after A1
-User B inserts Y after A2
+```
 
-IDs carry causal links
+Two users edit concurrently:
 
-Merge order doesn't matter
-→ Converges to   a X b Y c
+```
 
+User A → insert "X" after A1
+User B → insert "Y" after A3
+
+```
+
+CRDT merges based on positions **between IDs**, not absolute indexes → order of arrival doesn’t matter:
+
+```
+
+"h"(A1), "X", "e"(A2), "l"(A3), "Y", "l"(A4), "o"(A5)
+\=> hXelYlo
+
+```
+
+> 🧠 *No transform logic required — the merge strategy is built into the CRDT data structure itself.*
 ```
 
 ---
@@ -115,85 +145,73 @@ Popular libraries:
 
 ---
 
----
-
 ## How Do We Implement Real-Time Streaming?
 
-You can pair OT/CRDT models with different networking layers:
+Once we pick **OT** or **CRDT** as our *conflict-resolution model*, we still need a way for nodes to actually **talk to each other**.
+This is where the **network transport** comes in.
 
 ---
 
-### 🔌 WebSockets (Client <-> Server)
+### 🔌 WebSockets — *Client ↔ Server*
 
-> A persistent **TCP connection** between browser & server.
+> Long-lived TCP channel between browser and central server.
 
-- Server forwards messages between clients
-- Perfect for **centralized OT systems** (ShareDB, Fluid)
-- Also works for CRDT when you want to avoid P2P networking
+- All updates flow to/from the server
+- Easier to scale, works everywhere (firewalls/NATs)
+- Common in OT setups like *ShareDB* — but CRDTs like *Automerge Repo* can also use it
 
-✅ Easier NAT traversal  
-✅ Simple to scale horizontally  
-❌ Server becomes a sync bottleneck / single point
-
----
-
-**WebSocket stack looks like:**
+✅ Simple deployment  
+✅ Works even on corporate networks  
+❌ Server becomes a bottleneck / single point
 
 ```
 
-Browser <── WebSocket ──> Server <──> Other Browsers
+Browser 1 ←→ WebSocket ←→ Server ←→ WebSocket ←→ Browser 2
 
 ```
 
 ---
 
-### 📡 WebRTC (Peer <-> Peer)
+### 📡 WebRTC — *Peer ↔ Peer*
 
-> Browser-to-browser connection designed for realtime video/data.
+> Browser-to-browser realtime channel.
 
-Used by CRDT libraries like **Automerge Repo**, **Yjs**, **Liveblocks**, etc.
+- Great for *offline-first CRDT syncing*
+- Clients attempt to connect directly — if that fails, fall back to a relay
+- Requires a *signaling* channel (often still a WebSocket!) to get started
 
-**Requires three pieces:**
+**Needs three pieces of tech:**
 
-| Acronym | Stands For       | Purpose                     |
-|--------|------------------|-----------------------------|
-| STUN   | Session Traversal Utilities for NAT | Discovers your public IP/port (NAT traversal) |
-| TURN   | Traversal Using Relays around NAT  | Relays traffic *if* direct P2P fails |
-| ICE    | Interactive Connectivity Establishment | Chooses the best route between peers using candidates from STUN/TURN |
-
----
-
-**WebRTC stack looks like:**
-
-```
-
-Browser 1 <--(signaling WS)--> Server <--(signaling WS)--> Browser 2
-│
-ICE: tries P2P via STUN/TURN
-│
-└──> Direct peer connection established
-
-```
+| Acronym | Purpose |
+|--------|----------------------------------------------------|
+| **STUN** | Discover your public IP/port (NAT traversal)      |
+| **TURN** | Relay server used *if direct connection fails*    |
+| **ICE**  | Algorithm that tries all candidates & picks a route |
 
 ✅ True peer-to-peer  
-✅ Works offline → sync later  
-❌ Requires a signaling channel (usually a WebSocket)  
-❌ Relies on STUN/TURN infrastructure for NAT punching  
-❌ Slightly more complex flow
+✅ Works offline → sync when reconnected  
+❌ Harder to debug / NAT punch  
+❌ Still needs signaling infrastructure
 
----
+```
 
-### 🛠 Practical library examples
+Browser 1 ←─(signaling over WS)─→ Server ←─(signaling over WS)─→ Browser 2
+↓ ICE (STUN/TURN discovery)
+Attempts direct P2P connection
 
-| Sync Model | Transport | Library           |
-|------------|-----------|-------------------|
-| OT         | WebSocket | ShareDB           |
-| CRDT       | WebSocket | Automerge Repo    |
-| CRDT       | WebRTC    | Yjs, Liveblocks   |
 ```
 
 ---
 
+### 🛠️ Practical Library Examples
+
+| Model | Transport | Examples                 |
+|-------|-----------|--------------------------|
+| OT    | WebSocket | ShareDB                  |
+| CRDT  | WebSocket | Automerge Repo           |
+| CRDT  | WebRTC    | Y.js, Liveblocks         |
+
+---
 
 
 ### 🛠 Practical Stack Examples
