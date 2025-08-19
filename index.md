@@ -1,4 +1,4 @@
-## Building Feedback Systems with OT & CRDTs
+## Building Feedback Systems with OT and CRDTs
 
 
 ## What are Real-Time Streaming Apps?
