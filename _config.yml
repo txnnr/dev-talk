@@ -1,9 +1,5 @@
 title: Building Real Time Streaming Apps
 description: Tanner - Dev Talk Aug 19/2025
-
-remote_theme: pages-themes/midnight@v0.2.0
-plugins: 
-  - jekyll-remote-theme
-  - jekyll-include
-
-markdown: kramdown
+theme: minima
+minima:
+  skin: dark
