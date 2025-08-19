@@ -1,7 +1,5 @@
 ## Building Feedback Systems with OT and CRDTs
 
-{% include custom-css.html %}
-
 ## What are Real-Time Streaming Apps?
 
 * Applications where **state updates flow between users instantly**
